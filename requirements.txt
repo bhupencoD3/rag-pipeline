@@ -10,3 +10,18 @@ pypdf
 python-dotenv
 pandas
 ipykernel
+pymupdf
+python-docx
+docx2txt
+unstructured[docx]
+openpyxl
+msoffcrypto-tool
+jq
+matplotlib
+# Embeddings
+langchain-huggingface
+pinecone
+langchain-pinecone
+langchain-experimental
+rank_bm25
+wikipedia
