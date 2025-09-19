@@ -7,10 +7,6 @@ The work is structured across multiple Jupyter notebooks, each focusing on a spe
 
 ---
 
-## 0-DataIngestParsing
-
-This directory contains notebooks for data ingestion and parsing from different sources:
-
 ```
 0-DataIngestParsing/
 ├── dataingestion.ipynb
@@ -18,13 +14,16 @@ This directory contains notebooks for data ingestion and parsing from different 
 ├── dataingestionDoc.ipynb
 ├── dataingestionCsvExcel.ipynb
 ├── dataingestionJson.ipynb
+├── dataingestionSQL.ipynb
 └── data/
     ├── text_files/
     ├── pdf/
     ├── word_files/
     ├── structured_files/
-    └── json_files/
+    ├── json_files/
+    └── databases/
 ```
+
 
 ### Notebook 1: `dataingestion.ipynb` – Plain Text Files
 
@@ -81,6 +80,33 @@ This directory contains notebooks for data ingestion and parsing from different 
   * Constructs readable content from nested objects.
   * Attaches detailed metadata including employee ID, name, role, and project information.
 * Outcome: Structured JSON documents ready for embedding and retrieval.
+
+### Notebook 6: `dataingestionSQL.ipynb` – SQL Databases
+
+* Created a sample SQLite database (`company.db`) inside `data/databases/` with two tables:
+
+  * **employees** – employee details like name, role, department, salary.
+  * **projects** – project details like name, status, budget, and lead.
+
+* Loaded and inspected database schema using `SQLDatabase` from LangChain.
+
+* Implemented `sql_to_documents` function:
+
+  * Generates **table overview documents** (schema, columns, record counts, and sample records).
+  * Generates **relationship documents** by joining tables (e.g., employees leading projects).
+  * Attaches rich metadata (`source`, `table_name`, `num_records`, `data_type`).
+
+* Example relationship output:
+
+  ```
+  Employee-Project Relationship:
+
+  John Doe, Senior Developer leads RAG Implementation - Status: Active
+  Jane Smith, Data Scientist leads Data Pipeline - Status: Completed
+  ...
+  ```
+
+* **Outcome:** SQL databases are transformed into LangChain `Document` objects representing table structures, sample rows, and inter-table relationships—ready for embeddings and retrieval in RAG pipelines.
 
 ---
 
