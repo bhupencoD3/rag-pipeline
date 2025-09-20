@@ -1,144 +1,178 @@
-
 # Project RAG – Retrieval-Augmented Generation Learning Pipeline
 
-This repository contains a step-by-step learning and experimentation project on **Retrieval-Augmented Generation (RAG)**. The goal is to build an end-to-end RAG pipeline from scratch, including data ingestion, parsing, chunking, embedding, and querying with LLMs. The project emphasizes understanding each stage of RAG, experimenting with different document types, and preparing a robust knowledge base for retrieval.
+This repository contains a step-by-step learning and experimentation project on **Retrieval-Augmented Generation (RAG)**. The goal is to build an end-to-end RAG pipeline from scratch, including **data ingestion, parsing, chunking, embedding, and querying with LLMs**. The project emphasizes understanding each stage of RAG, experimenting with different document types, and preparing a robust knowledge base for retrieval.
 
-The work is structured across multiple Jupyter notebooks, each focusing on a specific data type or processing technique.
+The work is structured across multiple Jupyter notebooks, organized into two sections: **Data Ingestion and Parsing** and **Vector Embeddings**.
 
 ---
 
+## 📂 Project Structure
+
 ```
-0-DataIngestParsing/
-├── dataingestion.ipynb
-├── dataingestion-pdf.ipynb
-├── dataingestionDoc.ipynb
-├── dataingestionCsvExcel.ipynb
-├── dataingestionJson.ipynb
-├── dataingestionSQL.ipynb
-└── data/
-    ├── text_files/
-    ├── pdf/
-    ├── word_files/
-    ├── structured_files/
-    ├── json_files/
-    └── databases/
+Project RAG/
+├── 0-DataIngestParsing/
+│   ├── dataingestion.ipynb
+│   ├── dataingestion-pdf.ipynb
+│   ├── dataingestionDoc.ipynb
+│   ├── dataingestionCsvExcel.ipynb
+│   ├── dataingestionJson.ipynb
+│   ├── dataingestionSQL.ipynb
+│   └── data/
+│       ├── text_files/
+│       ├── pdf/
+│       ├── word_files/
+│       ├── structured_files/
+│       ├── json_files/
+│       └── databases/
+└── 1-VectorEmbeddings/
+    └── embedding.ipynb
 ```
 
+---
 
-### Notebook 1: `dataingestion.ipynb` – Plain Text Files
+## 📘 Section 1: Data Ingestion and Parsing
 
-* Created LangChain `Document` objects from raw text files, attaching metadata including author, page number, source, and custom fields.
-* Generated sample text files (`python_intro.txt` and `intro_to_rag.txt`) in a structured directory.
-* Loaded documents using `TextLoader` for single files and `DirectoryLoader` for entire folders.
+This section covers the ingestion and preprocessing of various document types into structured **LangChain Document objects**, including parsing, chunking, and metadata attachment.
+
+### 📄 Notebook 1.1: `dataingestion.ipynb` – Plain Text Files
+
+* Created LangChain Document objects from raw text files, attaching metadata including author, page number, source, and custom fields.
+* Generated sample text files (`python_intro.txt`, `intro_to_rag.txt`).
+* Loaded documents using **TextLoader** and **DirectoryLoader**.
 * Explored chunking strategies:
 
-  * `CharacterTextSplitter` for character-based chunks with overlap.
-  * `RecursiveCharacterTextSplitter` for recursive splitting using multiple separators.
-  * `TokenTextSplitter` for token-based fine-grained splitting.
-* Outcome: Structured chunks ready for embedding with consistent metadata.
+  * `CharacterTextSplitter` (character-based with overlap)
+  * `RecursiveCharacterTextSplitter` (multi-separator recursive splitting)
+  * `TokenTextSplitter` (token-based fine-grained splitting)
 
-### Notebook 2: `dataingestion-pdf.ipynb` – PDF Documents
+**Outcome:** Structured chunks ready for embedding with consistent metadata.
 
-* Loaded PDF files using `PyPDFLoader`, `PyMuPDFLoader`, and `UnstructuredPDFLoader`.
-* Implemented `SmartPDFProcessor` class that:
+### 📑 Notebook 1.2: `dataingestion-pdf.ipynb` – PDF Documents
 
-  * Cleans extracted text for OCR/encoding artifacts.
+* Loaded PDFs using **PyPDFLoader**, **PyMuPDFLoader**, and **UnstructuredPDFLoader**.
+* Implemented `SmartPDFProcessor` class:
+
+  * Cleans extracted text (OCR/encoding artifacts).
   * Splits pages into chunks using `RecursiveCharacterTextSplitter`.
-  * Attaches metadata including page number, total pages, chunk method, and character count.
-* Demonstrated error handling and filtering of small or empty chunks.
-* Outcome: Clean, structured, and chunked PDF documents ready for embedding.
+  * Attaches metadata (page number, total pages, chunk method, char count).
+* Error handling and filtering of small/empty chunks.
 
-### Notebook 3: `dataingestionDoc.ipynb` – Word Documents
+**Outcome:** Clean, structured, and chunked PDF documents ready for embedding.
 
-* Loaded `.docx` files using `Docx2txtLoader` and `UnstructuredWordDocumentLoader`.
-* Extracted elements from documents with metadata (e.g., element type, position).
-* Converted documents/elements into LangChain `Document` objects.
-* Outcome: Structured Word document elements ready for retrieval pipelines.
+### 📃 Notebook 1.3: `dataingestionDoc.ipynb` – Word Documents
 
-### Notebook 4: `dataingestionCsvExcel.ipynb` – CSV and Excel Files
+* Loaded `.docx` files using **Docx2txtLoader** and **UnstructuredWordDocumentLoader**.
+* Extracted elements with metadata (element type, position).
+* Converted into LangChain Document objects.
 
-* **CSV ingestion:**
+**Outcome:** Structured Word document elements ready for retrieval pipelines.
 
-  * Used `CSVLoader` and `UnstructuredCSVLoader` to load row-wise data.
-  * Created `Document` objects for each row with metadata like product name, category, price, and row index.
-  * Function `process_csv_intelligently` created readable structured content for each row.
+### 📊 Notebook 1.4: `dataingestionCsvExcel.ipynb` – CSV & Excel Files
 
-* **Excel ingestion:**
+**CSV Ingestion:**
 
-  * Read Excel sheets using `pandas` and `UnstructuredExcelLoader`.
-  * Converted each sheet to `Document` objects with metadata including sheet name, rows, columns, and data type.
-  * Supported multi-sheet Excel files.
+* Loaded row-wise data with **CSVLoader** and **UnstructuredCSVLoader**.
+* Created Document objects with metadata (product name, category, price, row index).
+* Implemented `process_csv_intelligently` for readable structured content.
 
-* Outcome: Tabular data converted to structured, metadata-rich `Document` objects.
+**Excel Ingestion:**
 
-### Notebook 5: `dataingestionJson.ipynb` – JSON Files
+* Read sheets using **pandas** and **UnstructuredExcelLoader**.
+* Converted sheets into Document objects with metadata (sheet name, rows, columns, data type).
+* Supported multi-sheet Excel files.
 
-* Loaded JSON files using `JSONLoader` and custom processing functions.
-* Extracted nested arrays and flattened hierarchical structures.
-* Function `process_json_intelligently`:
+**Outcome:** Tabular data converted into structured, metadata-rich Document objects.
+
+### 📦 Notebook 1.5: `dataingestionJson.ipynb` – JSON Files
+
+* Loaded JSON using **JSONLoader** and custom functions.
+* Extracted nested arrays and flattened structures.
+* Implemented `process_json_intelligently`:
 
   * Constructs readable content from nested objects.
-  * Attaches detailed metadata including employee ID, name, role, and project information.
-* Outcome: Structured JSON documents ready for embedding and retrieval.
+  * Attaches detailed metadata (employee ID, name, role, project info).
 
-### Notebook 6: `dataingestionSQL.ipynb` – SQL Databases
+**Outcome:** Structured JSON documents ready for embedding and retrieval.
 
-* Created a sample SQLite database (`company.db`) inside `data/databases/` with two tables:
+### 🗄️ Notebook 1.6: `dataingestionSQL.ipynb` – SQL Databases
 
-  * **employees** – employee details like name, role, department, salary.
-  * **projects** – project details like name, status, budget, and lead.
+* Created a sample SQLite database (`company.db`) with two tables:
 
-* Loaded and inspected database schema using `SQLDatabase` from LangChain.
+  * **employees** (name, role, department, salary)
+  * **projects** (name, status, budget, lead)
+* Loaded schema using **SQLDatabase** from LangChain.
+* Implemented `sql_to_documents`:
 
-* Implemented `sql_to_documents` function:
+  * Table overview documents (schema, columns, record counts, samples).
+  * Relationship documents via joins (e.g., employees leading projects).
+  * Rich metadata (source, table\_name, num\_records, data\_type).
 
-  * Generates **table overview documents** (schema, columns, record counts, and sample records).
-  * Generates **relationship documents** by joining tables (e.g., employees leading projects).
-  * Attaches rich metadata (`source`, `table_name`, `num_records`, `data_type`).
+**Example Relationship Output:**
 
-* Example relationship output:
+```
+Employee-Project Relationship:
+John Doe, Senior Developer leads RAG Implementation - Status: Active
+Jane Smith, Data Scientist leads Data Pipeline - Status: Completed
+```
 
-  ```
-  Employee-Project Relationship:
-
-  John Doe, Senior Developer leads RAG Implementation - Status: Active
-  Jane Smith, Data Scientist leads Data Pipeline - Status: Completed
-  ...
-  ```
-
-* **Outcome:** SQL databases are transformed into LangChain `Document` objects representing table structures, sample rows, and inter-table relationships—ready for embeddings and retrieval in RAG pipelines.
+**Outcome:** SQL databases transformed into Document objects representing schema, rows, and relationships.
 
 ---
 
-## Notes on Methods and Parameters
+## 📘 Section 2: Vector Embeddings
 
-* **Chunking:** Recursive and token-based chunking ensures that documents are manageable for embedding models while preserving semantic coherence.
-* **Metadata:** Uniform metadata schema across text, PDF, Word, CSV, Excel, and JSON allows precise filtering and retrieval.
-* **Error Handling:** All loaders include try-except blocks, ensuring robust ingestion even if files are missing or partially corrupted.
-* **Preprocessing:** Cleaning text (removing whitespace, correcting OCR errors) is applied uniformly to all document types.
-* **Scalability:** Loaders and chunking logic support directories of files, multi-sheet Excel files, and large PDFs.
+This section focuses on generating vector representations of processed documents for **semantic search and retrieval**.
+
+### 🔎 Notebook 2.1: `embedding.ipynb` – Vector Embeddings Fundamentals
+
+* Introduced embeddings with a 2D toy example (e.g., *cat, kitten, dog, puppy, car, truck*).
+* Visualized embeddings with **matplotlib**.
+* Implemented `cosine_similarity` for vector comparison.
+* Used **HuggingFaceEmbeddings** (`sentence-transformers/all-MiniLM-L6-v2`) to generate embeddings.
+* Demonstrated single-query and multi-sentence embeddings.
+
+**Outcome:** Generated embeddings for text data, ready for storage in a vector DB.
 
 ---
 
-## Dependencies
+## 📝 Notes on Methods and Parameters
 
-* `langchain`, `langchain-community`, `langchain-openai`
+* **Chunking:** Recursive & token-based strategies preserve semantic coherence.
+* **Metadata:** Uniform schema across text, PDF, Word, CSV, Excel, JSON, SQL.
+* **Error Handling:** Robust try-except logic for incomplete/corrupted files.
+* **Preprocessing:** Cleaning applied uniformly (whitespace, OCR corrections).
+* **Scalability:** Supports multi-file, multi-sheet, large PDFs, and varied text inputs.
+
+---
+
+## ⚙️ Dependencies
+
+* `langchain`
+* `langchain-community`
+* `langchain-openai`
 * `langgraph`
 * `openai`
 * `faiss-cpu` / `chroma`
-* `pandas`, `python-dotenv`, `beautifulsoup4`
-* `streamlit`, `ipykernel`
+* `pandas`
+* `python-dotenv`
+* `beautifulsoup4`
+* `streamlit`
+* `ipykernel`
+* `matplotlib`
+* `numpy`
+* `langchain-huggingface`
+* `sentence-transformers`
 
 ---
 
-## License
+## 📜 License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
 
 ---
 
-## Author
+## 👨‍💻 Author
 
 **Bhopindrasingh Parmar**
-LinkedIn: [https://www.linkedin.com/in/bhupenparmar/](https://www.linkedin.com/in/bhupenparmar/)
-GitHub: [https://github.com/bhupencoD3](https://github.com/bhupencoD3)
+🔗 [LinkedIn](https://www.linkedin.com/in/bhupenparmar/)
+💻 [GitHub](https://github.com/bhupencoD3)
