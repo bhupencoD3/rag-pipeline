@@ -25,7 +25,8 @@ Project RAG/
 │       ├── json_files/
 │       └── databases/
 └── 1-VectorEmbeddings/
-    └── embedding.ipynb
+    ├── embedding.ipynb
+    └── openai-embeddings.ipynb
 ```
 
 ---
@@ -132,6 +133,20 @@ This section focuses on generating vector representations of processed documents
 * Demonstrated single-query and multi-sentence embeddings.
 
 **Outcome:** Generated embeddings for text data, ready for storage in a vector DB.
+
+### 🔎 Notebook 2.2: `openai-embeddings.ipynb` – OpenAI Embeddings & Semantic Search
+
+* Used **OpenAIEmbeddings** (`text-embedding-3-small`) to embed text data.
+* Generated single and multiple embeddings.
+* Implemented `cosine_similarity` to compute similarity scores.
+* Compared multiple sentences pairwise for semantic similarity.
+* Implemented a simple **semantic search** pipeline:
+
+  * Query embedded and compared against documents.
+  * Retrieved top-k most relevant results.
+* Example: Query *"What is Embeddings?"* successfully retrieved the correct document.
+
+**Outcome:** Demonstrated semantic search and similarity-based retrieval using OpenAI embeddings.
 
 ---
 
