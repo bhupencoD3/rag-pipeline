@@ -1,12 +1,17 @@
-# Project RAG – Retrieval-Augmented Generation Learning Pipeline
+# 🚀 Project RAG – Retrieval-Augmented Generation Learning Pipeline
 
-This repository contains a step-by-step learning and experimentation project on **Retrieval-Augmented Generation (RAG)**. The goal is to build an end-to-end RAG pipeline from scratch, including **data ingestion, parsing, chunking, embedding, and querying with LLMs**. The project emphasizes understanding each stage of RAG, experimenting with different document types, and preparing a robust knowledge base for retrieval.
+This repository contains a step-by-step learning and experimentation project on **Retrieval-Augmented Generation (RAG)**.
+The goal is to build an end-to-end RAG pipeline from scratch, including **data ingestion, parsing, chunking, embedding, and vector storage**, preparing a robust knowledge base for retrieval and generation.
 
-The work is structured across multiple Jupyter notebooks, organized into two sections: **Data Ingestion and Parsing** and **Vector Embeddings**.
+The project is modularly structured into **three core stages**:
+
+1. **Data Ingestion & Parsing** – converting raw files into structured LangChain Document objects
+2. **Vector Embeddings** – transforming documents into numerical embeddings
+3. **Vector Stores** – persisting and managing embeddings for fast similarity-based retrieval
 
 ---
 
-## 📂 Project Structure
+## 🗂️ Project Structure
 
 ```
 Project RAG/
@@ -24,139 +29,83 @@ Project RAG/
 │       ├── structured_files/
 │       ├── json_files/
 │       └── databases/
-└── 1-VectorEmbeddings/
-    ├── embedding.ipynb
-    └── openai-embeddings.ipynb
+├── 1-VectorEmbeddings/
+│   ├── embedding.ipynb
+│   └── openai-embeddings.ipynb
+└── 2-Vector_store/
+    ├── chromaDB.ipynb
+    └── Datastaxdb.ipynb
 ```
 
 ---
 
-## 📘 Section 1: Data Ingestion and Parsing
+## 🧩 Section 1: Data Ingestion and Parsing
 
-This section covers the ingestion and preprocessing of various document types into structured **LangChain Document objects**, including parsing, chunking, and metadata attachment.
+Processes diverse document formats — **Text, PDF, Word, CSV/Excel, JSON, SQL** — into structured, chunked, metadata-rich **LangChain Document objects**.
 
-### 📄 Notebook 1.1: `dataingestion.ipynb` – Plain Text Files
+**Highlights:**
 
-* Created LangChain Document objects from raw text files, attaching metadata including author, page number, source, and custom fields.
-* Generated sample text files (`python_intro.txt`, `intro_to_rag.txt`).
-* Loaded documents using **TextLoader** and **DirectoryLoader**.
-* Explored chunking strategies:
+* Implemented multiple loaders: *TextLoader, PyPDFLoader, Docx2txtLoader, UnstructuredCSVLoader, JSONLoader, SQLDatabase*
+* Used intelligent chunking strategies (`RecursiveCharacterTextSplitter`, `TokenTextSplitter`)
+* Attached detailed metadata (source, author, file type, page number, etc.)
+* Cleaned and validated data across formats (PDF OCR, whitespace normalization, small chunk filtering)
 
-  * `CharacterTextSplitter` (character-based with overlap)
-  * `RecursiveCharacterTextSplitter` (multi-separator recursive splitting)
-  * `TokenTextSplitter` (token-based fine-grained splitting)
-
-**Outcome:** Structured chunks ready for embedding with consistent metadata.
-
-### 📑 Notebook 1.2: `dataingestion-pdf.ipynb` – PDF Documents
-
-* Loaded PDFs using **PyPDFLoader**, **PyMuPDFLoader**, and **UnstructuredPDFLoader**.
-* Implemented `SmartPDFProcessor` class:
-
-  * Cleans extracted text (OCR/encoding artifacts).
-  * Splits pages into chunks using `RecursiveCharacterTextSplitter`.
-  * Attaches metadata (page number, total pages, chunk method, char count).
-* Error handling and filtering of small/empty chunks.
-
-**Outcome:** Clean, structured, and chunked PDF documents ready for embedding.
-
-### 📃 Notebook 1.3: `dataingestionDoc.ipynb` – Word Documents
-
-* Loaded `.docx` files using **Docx2txtLoader** and **UnstructuredWordDocumentLoader**.
-* Extracted elements with metadata (element type, position).
-* Converted into LangChain Document objects.
-
-**Outcome:** Structured Word document elements ready for retrieval pipelines.
-
-### 📊 Notebook 1.4: `dataingestionCsvExcel.ipynb` – CSV & Excel Files
-
-**CSV Ingestion:**
-
-* Loaded row-wise data with **CSVLoader** and **UnstructuredCSVLoader**.
-* Created Document objects with metadata (product name, category, price, row index).
-* Implemented `process_csv_intelligently` for readable structured content.
-
-**Excel Ingestion:**
-
-* Read sheets using **pandas** and **UnstructuredExcelLoader**.
-* Converted sheets into Document objects with metadata (sheet name, rows, columns, data type).
-* Supported multi-sheet Excel files.
-
-**Outcome:** Tabular data converted into structured, metadata-rich Document objects.
-
-### 📦 Notebook 1.5: `dataingestionJson.ipynb` – JSON Files
-
-* Loaded JSON using **JSONLoader** and custom functions.
-* Extracted nested arrays and flattened structures.
-* Implemented `process_json_intelligently`:
-
-  * Constructs readable content from nested objects.
-  * Attaches detailed metadata (employee ID, name, role, project info).
-
-**Outcome:** Structured JSON documents ready for embedding and retrieval.
-
-### 🗄️ Notebook 1.6: `dataingestionSQL.ipynb` – SQL Databases
-
-* Created a sample SQLite database (`company.db`) with two tables:
-
-  * **employees** (name, role, department, salary)
-  * **projects** (name, status, budget, lead)
-* Loaded schema using **SQLDatabase** from LangChain.
-* Implemented `sql_to_documents`:
-
-  * Table overview documents (schema, columns, record counts, samples).
-  * Relationship documents via joins (e.g., employees leading projects).
-  * Rich metadata (source, table\_name, num\_records, data\_type).
-
-**Example Relationship Output:**
-
-```
-Employee-Project Relationship:
-John Doe, Senior Developer leads RAG Implementation - Status: Active
-Jane Smith, Data Scientist leads Data Pipeline - Status: Completed
-```
-
-**Outcome:** SQL databases transformed into Document objects representing schema, rows, and relationships.
+**Outcome:** Consistent document structures ready for embedding.
 
 ---
 
-## 📘 Section 2: Vector Embeddings
+## 🔍 Section 2: Vector Embeddings
 
-This section focuses on generating vector representations of processed documents for **semantic search and retrieval**.
+Transforms text chunks into **high-dimensional semantic vectors** suitable for retrieval.
 
-### 🔎 Notebook 2.1: `embedding.ipynb` – Vector Embeddings Fundamentals
+### Notebook 2.1: `embedding.ipynb`
 
-* Introduced embeddings with a 2D toy example (e.g., *cat, kitten, dog, puppy, car, truck*).
-* Visualized embeddings with **matplotlib**.
-* Implemented `cosine_similarity` for vector comparison.
-* Used **HuggingFaceEmbeddings** (`sentence-transformers/all-MiniLM-L6-v2`) to generate embeddings.
-* Demonstrated single-query and multi-sentence embeddings.
+* Explained embeddings with simple 2D visualization examples
+* Implemented cosine similarity manually
+* Used **HuggingFaceEmbeddings** (`sentence-transformers/all-MiniLM-L6-v2`)
 
-**Outcome:** Generated embeddings for text data, ready for storage in a vector DB.
+### Notebook 2.2: `openai-embeddings.ipynb`
 
-### 🔎 Notebook 2.2: `openai-embeddings.ipynb` – OpenAI Embeddings & Semantic Search
+* Used **OpenAI Embeddings** (`text-embedding-3-small`)
+* Computed similarity scores for semantic matching
+* Implemented mini **semantic search** demo
 
-* Used **OpenAIEmbeddings** (`text-embedding-3-small`) to embed text data.
-* Generated single and multiple embeddings.
-* Implemented `cosine_similarity` to compute similarity scores.
-* Compared multiple sentences pairwise for semantic similarity.
-* Implemented a simple **semantic search** pipeline:
-
-  * Query embedded and compared against documents.
-  * Retrieved top-k most relevant results.
-* Example: Query *"What is Embeddings?"* successfully retrieved the correct document.
-
-**Outcome:** Demonstrated semantic search and similarity-based retrieval using OpenAI embeddings.
+**Outcome:** Generated embeddings ready for storage in vector databases.
 
 ---
 
-## 📝 Notes on Methods and Parameters
+## 🛠️ Section 3: Vector Stores
 
-* **Chunking:** Recursive & token-based strategies preserve semantic coherence.
-* **Metadata:** Uniform schema across text, PDF, Word, CSV, Excel, JSON, SQL.
-* **Error Handling:** Robust try-except logic for incomplete/corrupted files.
-* **Preprocessing:** Cleaning applied uniformly (whitespace, OCR corrections).
-* **Scalability:** Supports multi-file, multi-sheet, large PDFs, and varied text inputs.
+This section stores and manages document embeddings for fast retrieval. Two vector database integrations are implemented.
+
+### 🔹 Notebook 3.1: `chromaDB.ipynb`
+
+* Integrated **ChromaDB**, a local vector store for embedding persistence
+* Created collection and inserted embeddings generated in previous steps
+* Implemented **similarity search** queries
+* Retrieved top-k most relevant chunks efficiently
+
+**Outcome:** Local retrieval pipeline fully functional using Chroma.
+
+---
+
+### 🔹 Notebook 3.2: `Datastaxdb.ipynb`
+
+* Integrated **DataStax AstraDB**, a managed distributed vector database
+* Used **LangChain DatastaxVectorStore** to connect via Astra tokens
+* Inserted embeddings and metadata from multiple document types
+* Performed **semantic retrieval** queries directly from cloud DB
+
+**Outcome:** Scalable vector retrieval pipeline leveraging AstraDB.
+
+---
+
+## 🗒️ Notes & Design Decisions
+
+* **Chunking:** Recursive and token-based to preserve meaning
+* **Metadata Schema:** Unified across all data sources
+* **Error Handling:** Try-except guards for incomplete or malformed inputs
+* **Extensibility:** Ready for next phase – RAG Querying and Generation
 
 ---
 
@@ -189,5 +138,4 @@ This project is licensed under the **MIT License**.
 ## 👨‍💻 Author
 
 **Bhopindrasingh Parmar**
-🔗 [LinkedIn](https://www.linkedin.com/in/bhupenparmar/)
-💻 [GitHub](https://github.com/bhupencoD3)
+🔗 [LinkedIn](https://www.linkedin.com/in/bhupenparmar/) | 🖥️ [GitHub](https://github.com/bhupencoD3)
