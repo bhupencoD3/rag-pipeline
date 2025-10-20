@@ -2,11 +2,12 @@
 
 This repository is a step-by-step learning and experimentation project on **Retrieval-Augmented Generation (RAG)**. The goal is to build an end-to-end RAG pipeline from scratch, including data ingestion, parsing, chunking, embedding, and vector storage, to create a robust knowledge base for retrieval and generation.
 
-The project is modularly structured into three core stages:
+The project is modularly structured into four core stages:
 
 1. **Data Ingestion & Parsing** – converting raw files into structured LangChain Document objects.
 2. **Vector Embeddings** – transforming documents into numerical embeddings.
 3. **Vector Stores** – persisting and managing embeddings for fast similarity-based retrieval.
+4. **Hybrid Retrieval & Re-Ranking** – combining dense and sparse retrieval for enhanced precision.
 
 ---
 
@@ -31,13 +32,17 @@ Project RAG/
 ├── 1-VectorEmbeddings/
 │   ├── embedding.ipynb
 │   └── openai-embeddings.ipynb
-└── 2-Vector_store/
-    ├── chromaDB.ipynb
-    ├── faiss.ipynb
-    ├── otherVectorStore.ipynb
-    ├── pinecone.ipynb
-└── 3-AdvancedChunking/
-    └── semantic_chunking.ipynb
+├── 2-Vector_store/
+│   ├── chromaDB.ipynb
+│   ├── faiss.ipynb
+│   ├── otherVectorStore.ipynb
+│   ├── pinecone.ipynb
+├── 3-AdvancedChunking/
+│   └── semantic_chunking.ipynb
+└── 4-HybridRetrieval/
+    ├── combining_dense_sparse.ipynb
+    ├── mmr_implementation.ipynb
+    └── re-ranking.ipynb
 ```
 
 ---
@@ -130,9 +135,58 @@ Explores **semantic-aware text chunking** techniques to preserve meaning across 
 
 ---
 
+## Section 5: Hybrid Retrieval & Re-Ranking
+
+This stage introduces **dense + sparse hybrid retrieval**, **MMR (Maximal Marginal Relevance)** search, and **document re-ranking** to improve retrieval relevance and reduce redundancy.
+
+### combining_dense_sparse.ipynb
+
+* Combines **dense retriever (FAISS + HuggingFaceEmbeddings)** with **sparse retriever (BM25)**.
+* Uses `EnsembleRetriever` to balance relevance (dense) and keyword precision (sparse).
+* Weight configuration example:
+
+  ```python
+  hybrid_retriever = EnsembleRetriever(
+      retrievers=[dense_retriever, sparse_retriever],
+      weights=[0.7, 0.3]
+  )
+  ```
+* Integrated into a full **RAG pipeline** using `PromptTemplate`, `create_stuff_documents_chain`, and `create_retrieval_chain` with `gpt-4o-mini`.
+
+**Outcome:** Combines semantic understanding and keyword precision for **balanced hybrid retrieval**.
+
+---
+
+### mmr_implementation.ipynb
+
+* Implements **MMR (Maximal Marginal Relevance)** retrieval to improve diversity in retrieved results.
+* Uses FAISS + HuggingFaceEmbeddings with `search_type='mmr'` and `search_kwargs={'k':3}`.
+* Integrated with `groq:gemma2-9b-it` model for RAG.
+* Demonstrates reduction in redundancy and improvement in contextual spread across retrieved chunks.
+
+**Outcome:** Efficient retrieval pipeline prioritizing diversity and coverage of information.
+
+---
+
+### re-ranking.ipynb
+
+* Implements **re-ranking** logic using a language model for post-retrieval ranking.
+* Uses a custom `PromptTemplate` instructing the model to reorder documents based on relevance.
+* Example prompt:
+
+  ```python
+  You are a helpful assistant. Your task is to rank the following documents from most to least relevant to the user's question.
+  ```
+* Combines retrieved docs with LLM ranking for **enhanced contextual precision**.
+
+**Outcome:** Achieves **intelligent ranking** of retrieved chunks before generation, boosting final RAG output quality.
+
+---
+
 ## Notes and Design Decisions
 
 * Chunking: Recursive, token-based, and semantic approaches for preserving meaning.
+* Hybrid retrieval: Dense (semantic) + Sparse (keyword) fusion.
 * Metadata schema: Unified across all data sources.
 * Error handling: Try-except guards for malformed inputs.
 * Extensibility: Ready for RAG querying and generation.
